@@ -1,14 +1,11 @@
 package com.example.suburbanbot;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.telegram.abilitybots.api.bot.AbilityBot;
 import org.telegram.abilitybots.api.objects.Ability;
-import org.telegram.abilitybots.api.objects.Privacy;
-import org.telegram.telegrambots.bots.TelegramLongPollingBot;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import static org.telegram.abilitybots.api.objects.Locality.*;
 import static org.telegram.abilitybots.api.objects.Privacy.*;
@@ -16,11 +13,15 @@ import static org.telegram.abilitybots.api.objects.Privacy.*;
 @Component
 public class SuburbanBot extends AbilityBot {
 
+    private YandexRaspClient yandexRaspClient;
+
     protected SuburbanBot(
             @Value("${bot.token}") String botToken,
-            @Value("${bot.name}") String botUsername
+            @Value("${bot.name}") String botUsername,
+            @Autowired YandexRaspClient yandexApiClient
     ) {
         super(botToken, botUsername);
+        this.yandexRaspClient = yandexApiClient;
     }
 
     public Ability sayHelloWorld() {

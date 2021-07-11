@@ -1,3 +1,12 @@
 bot:
   name: ${BOT_NAME}
   token: ${BOT_TOKEN}
+yandex-rasp:
+  key: ${YANDEX_RASP_API_KEY}
+stations:
+  from:
+    name: Расторгуево
+    code: s9600801
+  to:
+    name: Нагатинская
+    code: s9601975
