@@ -8,22 +8,24 @@ import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Primary;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Collections;
+import java.time.LocalTime;
 import java.util.List;
-import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertIterableEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
@@ -73,8 +75,10 @@ class SuburbanBotApplicationTests {
                 .setBody(json)
                 .setHeader("Content-Type", "application/json")
         );
-        Iterable<String> expected = List.of("10:15");
-        Iterable<String> actual = yandexRaspClient.getNearestThreeSuburbanTrainsArrivalTime();
+        Iterable<String> expected = List.of("06:00");
+        Iterable<String> actual = yandexRaspClient.getNearestThreeSuburbanTrainsArrivalTime(
+                LocalTime.of(5, 0)
+        );
         assertIterableEquals(expected, actual);
     }
 
@@ -89,8 +93,10 @@ class SuburbanBotApplicationTests {
                 .setBody(json)
                 .setHeader("Content-Type", "application/json")
         );
-        Iterable<String> expected = List.of("10:15", "10:16", "10:17");
-        Iterable<String> actual = yandexRaspClient.getNearestThreeSuburbanTrainsArrivalTime();
+        Iterable<String> expected = List.of("06:00", "06:01", "06:02");
+        Iterable<String> actual = yandexRaspClient.getNearestThreeSuburbanTrainsArrivalTime(
+                LocalTime.of(5, 0)
+        );
         assertIterableEquals(expected, actual);
     }
 
@@ -105,8 +111,10 @@ class SuburbanBotApplicationTests {
                 .setBody(json)
                 .setHeader("Content-Type", "application/json")
         );
-        Iterable<String> expected = List.of("10:15", "10:16", "10:17");
-        Iterable<String> actual = yandexRaspClient.getNearestThreeSuburbanTrainsArrivalTime();
+        Iterable<String> expected = List.of("06:00", "06:01", "06:02");
+        Iterable<String> actual = yandexRaspClient.getNearestThreeSuburbanTrainsArrivalTime(
+                LocalTime.of(5, 0)
+        );
         assertIterableEquals(expected, actual);
     }
 
@@ -122,7 +130,9 @@ class SuburbanBotApplicationTests {
                 .setHeader("Content-Type", "application/json")
         );
         Iterable<String> expected = List.of();
-        Iterable<String> actual = yandexRaspClient.getNearestThreeSuburbanTrainsArrivalTime();
+        Iterable<String> actual = yandexRaspClient.getNearestThreeSuburbanTrainsArrivalTime(
+                LocalTime.of(10, 0)
+        );
         assertIterableEquals(expected, actual);
     }
 
@@ -139,7 +149,9 @@ class SuburbanBotApplicationTests {
         );
         assertThrows(
                 JsonProcessingException.class,
-                () ->yandexRaspClient.getNearestThreeSuburbanTrainsArrivalTime()
+                () ->yandexRaspClient.getNearestThreeSuburbanTrainsArrivalTime(
+                        LocalTime.of(10, 0)
+                )
         );
     }
 }

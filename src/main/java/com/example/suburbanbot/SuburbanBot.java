@@ -9,6 +9,9 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.telegram.abilitybots.api.bot.AbilityBot;
 import org.telegram.abilitybots.api.objects.Ability;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+
 import static org.telegram.abilitybots.api.objects.Locality.*;
 import static org.telegram.abilitybots.api.objects.Privacy.*;
 
@@ -52,7 +55,7 @@ public class SuburbanBot extends AbilityBot {
                             try {
                                 message = String.join(
                                         System.lineSeparator(),
-                                        yandexRaspClient.getNearestThreeSuburbanTrainsArrivalTime()
+                                        yandexRaspClient.getNearestThreeSuburbanTrainsArrivalTime(LocalTime.now())
                                 );
                             } catch (JsonProcessingException e) {
                                 e.printStackTrace();

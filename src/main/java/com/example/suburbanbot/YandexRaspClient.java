@@ -10,6 +10,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.stream.Collectors;
@@ -33,7 +34,8 @@ public class YandexRaspClient {
         this.webClient = webClient;
     }
 
-    public Iterable<String> getNearestThreeSuburbanTrainsArrivalTime() throws JsonProcessingException {
+    public Iterable<String> getNearestThreeSuburbanTrainsArrivalTime(LocalTime fromTime)
+            throws JsonProcessingException {
         String jsonString = webClient
                 .get()
                 .uri(uriBuilder -> uriBuilder
@@ -41,27 +43,25 @@ public class YandexRaspClient {
                         .queryParam("to", toStationCode)
                         .queryParam("apikey", apiKey)
                         .queryParam("transport_types", "suburban")
-                        .queryParam("limit", 3)
                         .queryParam("date", new SimpleDateFormat("yyyy-MM-dd").format(new Date()))
                         .build()
                 )
                 .retrieve()
                 .bodyToMono(String.class)
-                .doOnError(exc -> exc.printStackTrace())
+                .doOnError(Throwable::printStackTrace)
                 .block();
                 ObjectMapper mapper = new ObjectMapper();
                 JsonNode root = mapper.readTree(jsonString);
                 return StreamSupport
                         .stream(root.get("segments").spliterator(), false)
-                        .limit(3)
                         .map(node -> node.get("departure").asText())
-                        .map(arrivalDateAsStr -> LocalDateTime.parse(
-                                arrivalDateAsStr, DateTimeFormatter.ISO_OFFSET_DATE_TIME
+                        .map(arrivalDateTimeAsStr -> LocalDateTime.parse(
+                                arrivalDateTimeAsStr, DateTimeFormatter.ISO_OFFSET_DATE_TIME
                         ))
-                        .map(localDt -> localDt
-                                .toLocalTime()
-                                .format(DateTimeFormatter.ofPattern("hh:mm"))
-                        )
+                        .map(LocalDateTime::toLocalTime)
+                        .dropWhile(localTime-> localTime.isBefore(fromTime))
+                        .limit(3)
+                        .map(localDt -> localDt.format(DateTimeFormatter.ofPattern("HH:mm")))
                         .collect(Collectors.toList());
     }
 }
