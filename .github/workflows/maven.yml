@@ -1,0 +1,24 @@
+name: Java CI with Maven
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up JDK 11
+      uses: actions/setup-java@v2
+      with:
+        java-version: '11'
+        distribution: 'adopt'
+    - name: Build with Maven
+      env: 
+        BOT_NAME: suburb_bot
+        BOT_TOKEN: ${{secrets.BOT_TOKEN}}
+        YANDEX_RASP_API_KEY: ${{secrets.YANDEX_RASP_API_KEY}}
+      run: mvn -B package --file pom.xml
