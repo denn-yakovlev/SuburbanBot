@@ -11,8 +11,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.stream.Collectors;
@@ -35,6 +36,9 @@ public class YandexRaspClient {
     @Value("${yandex-rasp.key}")
     private String apiKey;
 
+    @Value("${target-TZ}")
+    private String userTzCode;
+
     private final WebClient webClient;
 
     private SuburbanTrainThread forwardThread() {
@@ -49,18 +53,18 @@ public class YandexRaspClient {
         this.webClient = webClient;
     }
 
-    public Iterable<String> getNearestThreeTrainsArrivalTime(LocalTime fromTime)
+    public Iterable<String> getNearestThreeTrainsArrivalTime(ZonedDateTime fromTime)
             throws JsonProcessingException {
         return getTrainsArrivalTime(fromTime, forwardThread());
     }
 
-    public Iterable<String> getNearestThreeTrainsArrivalTimeBackward(LocalTime fromTime)
+    public Iterable<String> getNearestThreeTrainsArrivalTimeBackward(ZonedDateTime fromTime)
             throws JsonProcessingException{
         return getTrainsArrivalTime(fromTime, backwardThread());
     }
 
     @NotNull
-    private Iterable<String> getTrainsArrivalTime(LocalTime fromTime, SuburbanTrainThread trainThread)
+    private Iterable<String> getTrainsArrivalTime(ZonedDateTime fromTime, SuburbanTrainThread trainThread)
             throws JsonProcessingException {
         String jsonString = requestYandexRasp(trainThread);
         return parseJsonForArrivalTime(fromTime, jsonString);
@@ -82,23 +86,25 @@ public class YandexRaspClient {
                 .bodyToMono(String.class)
                 .doOnError(Throwable::printStackTrace)
                 .block();
+
     }
 
     @NotNull
-    private Iterable<String> parseJsonForArrivalTime(LocalTime fromTime, String jsonString)
+    private Iterable<String> parseJsonForArrivalTime(ZonedDateTime fromTime, String jsonString)
             throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode root = mapper.readTree(jsonString);
         return StreamSupport
                 .stream(root.get("segments").spliterator(), false)
                 .map(node -> node.get("departure").asText())
-                .map(arrivalDateTimeAsStr -> LocalDateTime.parse(
-                        arrivalDateTimeAsStr, DateTimeFormatter.ISO_OFFSET_DATE_TIME
-                ))
-                .map(LocalDateTime::toLocalTime)
-                .dropWhile(localTime-> localTime.isBefore(fromTime))
+                .map(ZonedDateTime::parse)
+                .dropWhile(zonedDt -> zonedDt.isBefore(fromTime))
                 .limit(3)
-                .map(localDt -> localDt.format(DateTimeFormatter.ofPattern("HH:mm")))
+                .map(zonedDt -> zonedDt
+                        .withZoneSameInstant(ZoneId.of(userTzCode))
+                        .toLocalTime()
+                        .format(DateTimeFormatter.ofPattern("HH:mm"))
+                )
                 .collect(Collectors.toList());
     }
 }

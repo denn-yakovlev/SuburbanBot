@@ -7,14 +7,14 @@ import org.springframework.stereotype.Component;
 import org.telegram.abilitybots.api.bot.AbilityBot;
 import org.telegram.abilitybots.api.objects.Ability;
 
-import java.time.LocalTime;
+import java.time.ZonedDateTime;
 
-import static org.telegram.abilitybots.api.objects.Locality.*;
-import static org.telegram.abilitybots.api.objects.Privacy.*;
+import static org.telegram.abilitybots.api.objects.Locality.ALL;
+import static org.telegram.abilitybots.api.objects.Privacy.PUBLIC;
 
 @FunctionalInterface
 interface ArrivalTimeProvider {
-    Iterable<String> getArrivalTime(LocalTime fromTime) throws JsonProcessingException;
+    Iterable<String> getArrivalTime(ZonedDateTime fromTime) throws JsonProcessingException;
 }
 
 @Component
@@ -77,7 +77,7 @@ public class SuburbanBot extends AbilityBot {
                             try {
                                 message = String.join(
                                         System.lineSeparator(),
-                                        resultProvider.getArrivalTime(LocalTime.now())
+                                        resultProvider.getArrivalTime(ZonedDateTime.now())
                                 );
                             } catch (JsonProcessingException e) {
                                 e.printStackTrace();

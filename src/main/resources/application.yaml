@@ -1,5 +1,5 @@
 bot:
-  name: ${BOT_NAME}
+  name: suburb_bot
   token: ${BOT_TOKEN}
 yandex-rasp:
   key: ${YANDEX_RASP_API_KEY}
@@ -10,3 +10,4 @@ stations:
   second:
     name: Нагатинская
     code: s9601975
+target-TZ: Europe/Moscow
