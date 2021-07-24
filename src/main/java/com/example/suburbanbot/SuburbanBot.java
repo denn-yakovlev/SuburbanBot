@@ -1,5 +1,7 @@
 package com.example.suburbanbot;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -34,6 +36,32 @@ public class SuburbanBot extends AbilityBot {
                 .privacy(PUBLIC)
                 .action(ctx -> silent.send("Hello world!", ctx.chatId()))
                 .post(ctx -> silent.send("Bye!", ctx.chatId()))
+                .build();
+    }
+
+    public Ability getThreeNearestTrainsArrivalTime() {
+        return Ability
+                .builder()
+                .name("fwd")
+                .info("Время прибытия к станции отправления трёх ближайших электричек")
+                .input(0)
+                .locality(ALL)
+                .privacy(PUBLIC)
+                .action(ctx -> {
+                            String message = "";
+                            try {
+                                message = String.join(
+                                        System.lineSeparator(),
+                                        yandexRaspClient.getNearestThreeSuburbanTrainsArrivalTime()
+                                );
+                            } catch (JsonProcessingException e) {
+                                e.printStackTrace();
+                                message = "Ошибка обработки ответа от внешнего API";
+                            } finally {
+                                silent.send(message, ctx.chatId());
+                            }
+                        }
+                )
                 .build();
     }
 

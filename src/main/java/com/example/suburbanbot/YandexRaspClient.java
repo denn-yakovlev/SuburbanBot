@@ -12,6 +12,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -32,7 +33,7 @@ public class YandexRaspClient {
         this.webClient = webClient;
     }
 
-    public Stream<String> getNearestThreeSuburbanTrainsArrivalTime() throws JsonProcessingException {
+    public Iterable<String> getNearestThreeSuburbanTrainsArrivalTime() throws JsonProcessingException {
         String jsonString = webClient
                 .get()
                 .uri(uriBuilder -> uriBuilder
@@ -53,15 +54,14 @@ public class YandexRaspClient {
                 return StreamSupport
                         .stream(root.get("segments").spliterator(), false)
                         .limit(3)
-                        .map(node -> node.get("arrival").asText())
+                        .map(node -> node.get("departure").asText())
                         .map(arrivalDateAsStr -> LocalDateTime.parse(
                                 arrivalDateAsStr, DateTimeFormatter.ISO_OFFSET_DATE_TIME
                         ))
                         .map(localDt -> localDt
                                 .toLocalTime()
                                 .format(DateTimeFormatter.ofPattern("hh:mm"))
-                        );
-
-
+                        )
+                        .collect(Collectors.toList());
     }
 }

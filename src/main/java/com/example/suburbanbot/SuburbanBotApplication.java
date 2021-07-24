@@ -10,7 +10,7 @@ public class SuburbanBotApplication {
 
     @Bean
     public WebClient getWebClient() {
-        return WebClient.create("https://api.rasp.yandex.net/v3.0/search");
+        return WebClient.create("https://api.rasp.yandex.net/v3.0/search/");
     }
     public static void main(String[] args) {
         SpringApplication.run(SuburbanBotApplication.class, args);

@@ -19,6 +19,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -71,9 +73,9 @@ class SuburbanBotApplicationTests {
                 .setBody(json)
                 .setHeader("Content-Type", "application/json")
         );
-        Stream<String> expected = Stream.of("10:15");
-        Stream<String> actual = yandexRaspClient.getNearestThreeSuburbanTrainsArrivalTime();
-        assertArrayEquals(expected.toArray(), actual.toArray());
+        Iterable<String> expected = List.of("10:15");
+        Iterable<String> actual = yandexRaspClient.getNearestThreeSuburbanTrainsArrivalTime();
+        assertIterableEquals(expected, actual);
     }
 
     @Test
@@ -87,9 +89,9 @@ class SuburbanBotApplicationTests {
                 .setBody(json)
                 .setHeader("Content-Type", "application/json")
         );
-        Stream<String> expected = Stream.of("10:15", "10:16", "10:17");
-        Stream<String> actual = yandexRaspClient.getNearestThreeSuburbanTrainsArrivalTime();
-        assertArrayEquals(expected.toArray(), actual.toArray());
+        Iterable<String> expected = List.of("10:15", "10:16", "10:17");
+        Iterable<String> actual = yandexRaspClient.getNearestThreeSuburbanTrainsArrivalTime();
+        assertIterableEquals(expected, actual);
     }
 
     @Test
@@ -103,9 +105,9 @@ class SuburbanBotApplicationTests {
                 .setBody(json)
                 .setHeader("Content-Type", "application/json")
         );
-        Stream<String> expected = Stream.of("10:15", "10:16", "10:17");
-        Stream<String> actual = yandexRaspClient.getNearestThreeSuburbanTrainsArrivalTime();
-        assertArrayEquals(expected.toArray(), actual.toArray());
+        Iterable<String> expected = List.of("10:15", "10:16", "10:17");
+        Iterable<String> actual = yandexRaspClient.getNearestThreeSuburbanTrainsArrivalTime();
+        assertIterableEquals(expected, actual);
     }
 
     @Test
@@ -119,9 +121,9 @@ class SuburbanBotApplicationTests {
                 .setBody(json)
                 .setHeader("Content-Type", "application/json")
         );
-        Stream<String> expected = Stream.of();
-        Stream<String> actual = yandexRaspClient.getNearestThreeSuburbanTrainsArrivalTime();
-        assertArrayEquals(expected.toArray(), actual.toArray());
+        Iterable<String> expected = List.of();
+        Iterable<String> actual = yandexRaspClient.getNearestThreeSuburbanTrainsArrivalTime();
+        assertIterableEquals(expected, actual);
     }
 
     @Test
