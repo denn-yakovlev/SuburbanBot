@@ -76,7 +76,7 @@ class SuburbanBotApplicationTests {
                 .setHeader("Content-Type", "application/json")
         );
         Iterable<String> expected = List.of("06:00");
-        Iterable<String> actual = yandexRaspClient.getNearestThreeSuburbanTrainsArrivalTime(
+        Iterable<String> actual = yandexRaspClient.getNearestThreeTrainsArrivalTime(
                 LocalTime.of(5, 0)
         );
         assertIterableEquals(expected, actual);
@@ -94,7 +94,7 @@ class SuburbanBotApplicationTests {
                 .setHeader("Content-Type", "application/json")
         );
         Iterable<String> expected = List.of("06:00", "06:01", "06:02");
-        Iterable<String> actual = yandexRaspClient.getNearestThreeSuburbanTrainsArrivalTime(
+        Iterable<String> actual = yandexRaspClient.getNearestThreeTrainsArrivalTime(
                 LocalTime.of(5, 0)
         );
         assertIterableEquals(expected, actual);
@@ -112,7 +112,7 @@ class SuburbanBotApplicationTests {
                 .setHeader("Content-Type", "application/json")
         );
         Iterable<String> expected = List.of("06:00", "06:01", "06:02");
-        Iterable<String> actual = yandexRaspClient.getNearestThreeSuburbanTrainsArrivalTime(
+        Iterable<String> actual = yandexRaspClient.getNearestThreeTrainsArrivalTime(
                 LocalTime.of(5, 0)
         );
         assertIterableEquals(expected, actual);
@@ -130,7 +130,7 @@ class SuburbanBotApplicationTests {
                 .setHeader("Content-Type", "application/json")
         );
         Iterable<String> expected = List.of();
-        Iterable<String> actual = yandexRaspClient.getNearestThreeSuburbanTrainsArrivalTime(
+        Iterable<String> actual = yandexRaspClient.getNearestThreeTrainsArrivalTime(
                 LocalTime.of(10, 0)
         );
         assertIterableEquals(expected, actual);
@@ -149,7 +149,7 @@ class SuburbanBotApplicationTests {
         );
         assertThrows(
                 JsonProcessingException.class,
-                () ->yandexRaspClient.getNearestThreeSuburbanTrainsArrivalTime(
+                () ->yandexRaspClient.getNearestThreeTrainsArrivalTime(
                         LocalTime.of(10, 0)
                 )
         );

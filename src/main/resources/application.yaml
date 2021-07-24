@@ -4,9 +4,9 @@ bot:
 yandex-rasp:
   key: ${YANDEX_RASP_API_KEY}
 stations:
-  from:
+  first:
     name: Расторгуево
     code: s9600801
-  to:
+  second:
     name: Нагатинская
     code: s9601975
