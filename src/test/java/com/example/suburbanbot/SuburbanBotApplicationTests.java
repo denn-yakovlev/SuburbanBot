@@ -68,7 +68,7 @@ class SuburbanBotApplicationTests {
     void testYandexApiClient_shouldReturnOneResult_whenOneArrivalGiven() throws IOException {
         String json = Files.readString(
                 Paths.get(
-                        System.getProperty("user.dir"), "suburban_bot_test.json"
+                        System.getProperty("user.dir"), "src/test/resources/", "suburban_bot_test.json"
                 )
         );
         mockServer.enqueue(new MockResponse()
@@ -86,7 +86,7 @@ class SuburbanBotApplicationTests {
     void testYandexApiClient_shouldReturnThreeResults_whenThreeArrivalGiven() throws IOException {
         String json = Files.readString(
                 Paths.get(
-                        System.getProperty("user.dir"), "suburban_bot_test2.json"
+                        System.getProperty("user.dir"), "src/test/resources/", "suburban_bot_test2.json"
                 )
         );
         mockServer.enqueue(new MockResponse()
@@ -104,7 +104,7 @@ class SuburbanBotApplicationTests {
     void testYandexApiClient_shouldReturnThreeResults_whenFourArrivalGiven() throws IOException {
         String json = Files.readString(
                 Paths.get(
-                        System.getProperty("user.dir"), "suburban_bot_test3.json"
+                        System.getProperty("user.dir"), "src/test/resources/", "suburban_bot_test3.json"
                 )
         );
         mockServer.enqueue(new MockResponse()
@@ -122,7 +122,7 @@ class SuburbanBotApplicationTests {
     void testYandexApiClient_shouldReturnNoResults_whenZeroArrivalGiven() throws IOException {
         String json = Files.readString(
                 Paths.get(
-                        System.getProperty("user.dir"), "suburban_bot_test4.json"
+                        System.getProperty("user.dir"), "src/test/resources/", "suburban_bot_test4.json"
                 )
         );
         mockServer.enqueue(new MockResponse()
@@ -140,7 +140,7 @@ class SuburbanBotApplicationTests {
     void testYandexApiClient_shouldThrow_whenInvalidJson() throws IOException {
         String json = Files.readString(
                 Paths.get(
-                        System.getProperty("user.dir"), "suburban_bot_test5.json"
+                        System.getProperty("user.dir"), "src/test/resources/", "suburban_bot_test5.json"
                 )
         );
         mockServer.enqueue(new MockResponse()

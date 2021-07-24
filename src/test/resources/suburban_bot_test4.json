@@ -1,0 +1,25 @@
+{
+   "pagination":{
+      "total":11,
+      "limit":100,
+      "offset":0
+   },
+   "segments":[],
+   "search":{
+      "date":"2017-01-02",
+      "to":{
+         "code":"c213",
+         "type":"settlement",
+         "popular_title":"Москва",
+         "short_title":"Москва",
+         "title":"Москва"
+      },
+      "from":{
+         "code":"c146",
+         "type":"settlement",
+         "popular_title":"Симферополь",
+         "short_title":"Симферополь",
+         "title":"Симферополь"
+      }
+   }
+}
