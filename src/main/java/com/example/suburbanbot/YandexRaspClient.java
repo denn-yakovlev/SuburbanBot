@@ -10,12 +10,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import java.text.SimpleDateFormat;
-import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -79,7 +76,7 @@ public class YandexRaspClient {
                         .queryParam("to", trainThread.getToStation())
                         .queryParam("apikey", apiKey)
                         .queryParam("transport_types", "suburban")
-                        .queryParam("date", new SimpleDateFormat("yyyy-MM-dd").format(new Date()))
+                        .queryParam("date", ZonedDateTime.now(ZoneId.of(userTzCode)).toLocalDate())
                         .build()
                 )
                 .retrieve()

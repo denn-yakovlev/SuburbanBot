@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import org.telegram.abilitybots.api.bot.AbilityBot;
 import org.telegram.abilitybots.api.objects.Ability;
 
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 import static org.telegram.abilitybots.api.objects.Locality.ALL;
