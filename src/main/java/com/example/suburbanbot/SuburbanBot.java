@@ -38,22 +38,22 @@ class DeparturesMessage {
 @Component
 public class SuburbanBot extends AbilityBot {
 
-    private YandexRaspClient yandexRaspClient;
+    private SuburbanTrainsService suburbanTrainsService;
 
     protected SuburbanBot(
             @Value("${bot.token}") String botToken,
             @Value("${bot.name}") String botUsername,
-            YandexRaspClient yandexApiClient
+            SuburbanTrainsService suburbanTrainsService
     ) {
         super(botToken, botUsername);
-        this.yandexRaspClient = yandexApiClient;
+        this.suburbanTrainsService = suburbanTrainsService;
     }
 
     public Ability getThreeNearestTrainsDepartureTime() {
         return getDepartureTimeAbility(
                 "fwd",
                 "Время отбытия от станции отправления трёх ближайших электричек",
-                yandexRaspClient::getNearestThreeTrainsDepartureTime
+                suburbanTrainsService::getNearestThreeTrainsDepartureTime
         );
     }
 
@@ -61,14 +61,14 @@ public class SuburbanBot extends AbilityBot {
         return getDepartureTimeAbility(
                 "bwd",
                 "Время отбытия от станции отправления трёх ближайших электричек (обратное направление)",
-                yandexRaspClient::getNearestThreeTrainsDepartureTimeBackward
+                suburbanTrainsService::getNearestThreeTrainsDepartureTimeBackward
         );
     }
 
     private Ability getDepartureTimeAbility(
             String commandName,
             String commandDescription,
-            DepartureInfoProvider resultProvider
+            DeparturesMessageProvider resultProvider
     ) {
         return Ability
                 .builder()

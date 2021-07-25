@@ -24,29 +24,25 @@ public class YandexRaspClient {
     private String userTzCode;
 
     private final WebClient webClient;
-    private final StationsConfig stationsConfig;
 
-    public YandexRaspClient(WebClient webClient, StationsConfig stationsConfig) {
+    public YandexRaspClient(WebClient webClient) {
         this.webClient = webClient;
-        this.stationsConfig = stationsConfig;
     }
 
-    public DeparturesMessage getNearestThreeTrainsDepartureTime(ZonedDateTime fromTime)
-            throws JsonProcessingException {
-        return getTrainsDeparturesMessage(fromTime, stationsConfig.forward());
-    }
-
-    public DeparturesMessage getNearestThreeTrainsDepartureTimeBackward(ZonedDateTime fromTime)
-            throws JsonProcessingException{
-        return getTrainsDeparturesMessage(fromTime, stationsConfig.backward());
-    }
-
-    @NotNull
-    private DeparturesMessage getTrainsDeparturesMessage(ZonedDateTime fromTime, TrainThread trainThread)
+    public Stream<DepartureInfo> getDepartureInfos(ZonedDateTime fromTime, TrainThread trainThread, int resultsLimit)
             throws JsonProcessingException {
         String jsonString = requestYandexRasp(trainThread);
-        Stream<DepartureInfo> departureInfos = parseJsonForDepartureInfo(fromTime, jsonString);
-        return new DeparturesMessage(trainThread, departureInfos);
+        JsonNode root = new ObjectMapper().readTree(jsonString);
+        return StreamSupport
+                .stream(root.get("segments").spliterator(), false)
+                .map(node -> {
+                    String departureDateTimeAsText = node.get("departure").asText();
+                    ZonedDateTime departureZonedDateTime = ZonedDateTime.parse(departureDateTimeAsText);
+                    boolean notExpress = node.get("thread").get("express_type").isNull();
+                    return new DepartureInfo(departureZonedDateTime, !notExpress);
+                })
+                .dropWhile(depInfo -> depInfo.getDepartureTime().isBefore(fromTime))
+                .limit(resultsLimit);
     }
 
     @Nullable
@@ -66,22 +62,5 @@ public class YandexRaspClient {
                 .doOnError(Throwable::printStackTrace)
                 .block();
 
-    }
-
-    @NotNull
-    private Stream<DepartureInfo> parseJsonForDepartureInfo(ZonedDateTime fromTime, String jsonString)
-            throws JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode root = mapper.readTree(jsonString);
-        return StreamSupport
-                .stream(root.get("segments").spliterator(), false)
-                .map(node -> {
-                    String departureDateTimeAsText = node.get("departure").asText();
-                    ZonedDateTime departureZonedDateTime = ZonedDateTime.parse(departureDateTimeAsText);
-                    boolean notExpress = node.get("thread").get("express_type").isNull();
-                    return new DepartureInfo(departureZonedDateTime, !notExpress);
-                })
-                .dropWhile(depInfo -> depInfo.getDepartureTime().isBefore(fromTime))
-                .limit(3);
     }
 }
