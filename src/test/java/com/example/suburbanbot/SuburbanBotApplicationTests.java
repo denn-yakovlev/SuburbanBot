@@ -9,6 +9,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
@@ -23,8 +24,10 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.ZonedDateTime;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
@@ -172,5 +175,75 @@ class SuburbanBotApplicationTests {
                         3
                 )
         );
+    }
+
+    @Test
+    void testSuburbanTrainsService_shouldReturnNearestThreeTrains() throws JsonProcessingException{
+        Station station1 = new Station();
+        station1.setName("st1");
+        station1.setCode("123");
+
+        Station station2 = new Station();
+        station2.setName("st2");
+        station2.setCode("456");
+
+        StationsConfig stationsConfig = new StationsConfig();
+        stationsConfig.setFirst(station1);
+        stationsConfig.setSecond(station2);
+
+        ZonedDateTime currentDateTime = ZonedDateTime.parse("2021-01-01T06:00+03:00");
+        Stream<DepartureInfo> depInfos = Stream.of(
+                new DepartureInfo(ZonedDateTime.parse("2021-01-01T06:05+03:00"), false),
+                new DepartureInfo(ZonedDateTime.parse("2021-01-01T06:07+03:00"), true),
+                new DepartureInfo(ZonedDateTime.parse("2021-01-01T06:08+03:00"), true)
+        );
+        YandexRaspClient mockYandexRaspClient = Mockito.mock(YandexRaspClient.class);
+        when(
+                mockYandexRaspClient.getDepartureInfos(eq(currentDateTime), any(), anyInt())
+        ).thenReturn(depInfos);
+
+        SuburbanTrainsService sut = new SuburbanTrainsService(stationsConfig, mockYandexRaspClient);
+
+        DeparturesMessage actual = sut.getNearestThreeTrainsDepartureTime(currentDateTime);
+        DeparturesMessage expected = new DeparturesMessage(stationsConfig.forward(), depInfos);
+
+        assertEquals(expected, actual);
+        assertEquals("st1", actual.getTrainThread().getFromStation().getName());
+        assertEquals("st2", actual.getTrainThread().getToStation().getName());
+    }
+
+    @Test
+    void testSuburbanTrainsService_shouldReturnNearestThreeTrainsBackward() throws JsonProcessingException{
+        Station station1 = new Station();
+        station1.setName("st1");
+        station1.setCode("123");
+
+        Station station2 = new Station();
+        station2.setName("st2");
+        station2.setCode("456");
+
+        StationsConfig stationsConfig = new StationsConfig();
+        stationsConfig.setFirst(station1);
+        stationsConfig.setSecond(station2);
+
+        ZonedDateTime currentDateTime = ZonedDateTime.parse("2021-01-01T06:00+03:00");
+        Stream<DepartureInfo> depInfos = Stream.of(
+                new DepartureInfo(ZonedDateTime.parse("2021-01-01T06:05+03:00"), false),
+                new DepartureInfo(ZonedDateTime.parse("2021-01-01T06:07+03:00"), true),
+                new DepartureInfo(ZonedDateTime.parse("2021-01-01T06:08+03:00"), true)
+        );
+        YandexRaspClient mockYandexRaspClient = mock(YandexRaspClient.class);
+        when(
+                mockYandexRaspClient.getDepartureInfos(eq(currentDateTime), eq(stationsConfig.backward()), anyInt())
+        ).thenReturn(depInfos);
+
+        SuburbanTrainsService sut = new SuburbanTrainsService(stationsConfig, mockYandexRaspClient);
+
+        DeparturesMessage actual = sut.getNearestThreeTrainsDepartureTimeBackward(currentDateTime);
+        DeparturesMessage expected = new DeparturesMessage(stationsConfig.backward(), depInfos);
+
+        assertEquals(expected, actual);
+        assertEquals("st2", actual.getTrainThread().getFromStation().getName());
+        assertEquals("st1", actual.getTrainThread().getToStation().getName());
     }
 }
