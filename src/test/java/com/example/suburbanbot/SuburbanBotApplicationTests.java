@@ -5,7 +5,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import okhttp3.HttpUrl;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -23,8 +22,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -80,7 +77,7 @@ class SuburbanBotApplicationTests {
         Stream<DepartureInfo> expected = Stream.of(
                 new DepartureInfo(ZonedDateTime.parse("2017-03-28T06:00+03:00"), false)
         );
-        Stream<DepartureInfo> actual = yandexRaspClient.getNearestThreeTrainsDepartureTime(
+        DeparturesMessage actual = yandexRaspClient.getNearestThreeTrainsDepartureTime(
                 ZonedDateTime.parse("2017-03-28T05:00+03:00")
         );
         assertArrayEquals(expected.toArray(), actual.toArray());
@@ -102,7 +99,7 @@ class SuburbanBotApplicationTests {
                 new DepartureInfo(ZonedDateTime.parse("2017-03-28T06:01+03:00"), false),
                 new DepartureInfo(ZonedDateTime.parse("2017-03-28T06:02+03:00"), false)
                 );
-        Stream<DepartureInfo> actual = yandexRaspClient.getNearestThreeTrainsDepartureTime(
+        DeparturesMessage actual = yandexRaspClient.getNearestThreeTrainsDepartureTime(
                 ZonedDateTime.parse("2017-03-28T05:00+03:00")
         );
         assertArrayEquals(expected.toArray(), actual.toArray());
@@ -124,7 +121,7 @@ class SuburbanBotApplicationTests {
                 new DepartureInfo(ZonedDateTime.parse("2017-03-28T06:01+03:00"), false),
                 new DepartureInfo(ZonedDateTime.parse("2017-03-28T06:02+03:00"), false)
                 );
-        Stream<DepartureInfo> actual = yandexRaspClient.getNearestThreeTrainsDepartureTime(
+        DeparturesMessage actual = yandexRaspClient.getNearestThreeTrainsDepartureTime(
                 ZonedDateTime.parse("2017-03-28T05:00+03:00")
         );
         assertArrayEquals(expected.toArray(), actual.toArray());
@@ -142,7 +139,7 @@ class SuburbanBotApplicationTests {
                 .setHeader("Content-Type", "application/json")
         );
         Stream<DepartureInfo> expected = Stream.empty();
-        Stream<DepartureInfo> actual = yandexRaspClient.getNearestThreeTrainsDepartureTime(
+        DeparturesMessage actual = yandexRaspClient.getNearestThreeTrainsDepartureTime(
                 ZonedDateTime.parse("2017-03-28T05:00+03:00")
         );
         assertArrayEquals(expected.toArray(), actual.toArray());

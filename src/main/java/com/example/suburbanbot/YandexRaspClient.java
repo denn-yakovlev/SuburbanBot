@@ -11,23 +11,11 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-@lombok.Value
-class TrainThread {
-    String fromStation;
-    String toStation;
-}
-
 @Component
 public class YandexRaspClient {
-
-    @Value("${stations.first.code}")
-    private String firstStationCode;
-    @Value("${stations.second.code}")
-    private String secondStationCode;
 
     @Value("${yandex-rasp.key}")
     private String apiKey;
@@ -35,35 +23,30 @@ public class YandexRaspClient {
     @Value("${target-TZ}")
     private String userTzCode;
 
-    private TrainThread forwardThread() {
-        return new TrainThread(firstStationCode, secondStationCode);
-    }
-
-    private TrainThread backwardThread() {
-        return new TrainThread(secondStationCode, firstStationCode);
-    }
-
     private final WebClient webClient;
+    private final StationsConfig stationsConfig;
 
-    public YandexRaspClient(WebClient webClient) {
+    public YandexRaspClient(WebClient webClient, StationsConfig stationsConfig) {
         this.webClient = webClient;
+        this.stationsConfig = stationsConfig;
     }
 
-    public Stream<DepartureInfo> getNearestThreeTrainsDepartureTime(ZonedDateTime fromTime)
+    public DeparturesMessage getNearestThreeTrainsDepartureTime(ZonedDateTime fromTime)
             throws JsonProcessingException {
-        return getTrainsDepartureTime(fromTime, forwardThread());
+        return getTrainsDeparturesMessage(fromTime, stationsConfig.forward());
     }
 
-    public Stream<DepartureInfo> getNearestThreeTrainsDepartureTimeBackward(ZonedDateTime fromTime)
+    public DeparturesMessage getNearestThreeTrainsDepartureTimeBackward(ZonedDateTime fromTime)
             throws JsonProcessingException{
-        return getTrainsDepartureTime(fromTime, backwardThread());
+        return getTrainsDeparturesMessage(fromTime, stationsConfig.backward());
     }
 
     @NotNull
-    private Stream<DepartureInfo> getTrainsDepartureTime(ZonedDateTime fromTime, TrainThread trainThread)
+    private DeparturesMessage getTrainsDeparturesMessage(ZonedDateTime fromTime, TrainThread trainThread)
             throws JsonProcessingException {
         String jsonString = requestYandexRasp(trainThread);
-        return parseJsonForDepartureInfo(fromTime, jsonString);
+        Stream<DepartureInfo> departureInfos = parseJsonForDepartureInfo(fromTime, jsonString);
+        return new DeparturesMessage(trainThread, departureInfos);
     }
 
     @Nullable
@@ -71,8 +54,8 @@ public class YandexRaspClient {
         return webClient
                 .get()
                 .uri(uriBuilder -> uriBuilder
-                        .queryParam("from", trainThread.getFromStation())
-                        .queryParam("to", trainThread.getToStation())
+                        .queryParam("from", trainThread.getFromStation().getCode())
+                        .queryParam("to", trainThread.getToStation().getCode())
                         .queryParam("apikey", apiKey)
                         .queryParam("transport_types", "suburban")
                         .queryParam("date", ZonedDateTime.now(ZoneId.of(userTzCode)).toLocalDate())
