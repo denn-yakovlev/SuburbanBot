@@ -1,13 +1,11 @@
 package com.example.suburbanbot;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.abilitybots.api.bot.AbilityBot;
 import org.telegram.abilitybots.api.objects.Ability;
 
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 import static org.telegram.abilitybots.api.objects.Locality.ALL;
@@ -26,23 +24,10 @@ public class SuburbanBot extends AbilityBot {
     protected SuburbanBot(
             @Value("${bot.token}") String botToken,
             @Value("${bot.name}") String botUsername,
-            @Autowired YandexRaspClient yandexApiClient
+            YandexRaspClient yandexApiClient
     ) {
         super(botToken, botUsername);
         this.yandexRaspClient = yandexApiClient;
-    }
-
-    public Ability sayHelloWorld() {
-        return Ability
-                .builder()
-                .name("hello")
-                .info("says hello world!")
-                .input(0)
-                .locality(ALL)
-                .privacy(PUBLIC)
-                .action(ctx -> silent.send("Hello world!", ctx.chatId()))
-                .post(ctx -> silent.send("Bye!", ctx.chatId()))
-                .build();
     }
 
     public Ability getThreeNearestTrainsArrivalTime() {

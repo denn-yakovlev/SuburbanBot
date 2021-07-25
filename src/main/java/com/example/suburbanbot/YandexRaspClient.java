@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -36,8 +35,6 @@ public class YandexRaspClient {
     @Value("${target-TZ}")
     private String userTzCode;
 
-    private final WebClient webClient;
-
     private SuburbanTrainThread forwardThread() {
         return new SuburbanTrainThread(firstStationCode, secondStationCode);
     }
@@ -46,7 +43,9 @@ public class YandexRaspClient {
         return new SuburbanTrainThread(secondStationCode, firstStationCode);
     }
 
-    public YandexRaspClient(@Autowired WebClient webClient) {
+    private final WebClient webClient;
+
+    public YandexRaspClient(WebClient webClient) {
         this.webClient = webClient;
     }
 
