@@ -12,8 +12,8 @@ import static org.telegram.abilitybots.api.objects.Locality.ALL;
 import static org.telegram.abilitybots.api.objects.Privacy.PUBLIC;
 
 @FunctionalInterface
-interface ArrivalTimeProvider {
-    Iterable<String> getArrivalTime(ZonedDateTime fromTime) throws JsonProcessingException;
+interface DepartureTimeProvider {
+    Iterable<String> getDepartureTime(ZonedDateTime fromTime) throws JsonProcessingException;
 }
 
 @Component
@@ -30,26 +30,26 @@ public class SuburbanBot extends AbilityBot {
         this.yandexRaspClient = yandexApiClient;
     }
 
-    public Ability getThreeNearestTrainsArrivalTime() {
-        return getArrivalTimeAbility(
+    public Ability getThreeNearestTrainsDepartureTime() {
+        return getDepartureTimeAbility(
                 "fwd",
-                "Время прибытия к станции отправления трёх ближайших электричек",
-                yandexRaspClient::getNearestThreeTrainsArrivalTime
+                "Время отбытия от станции отправления трёх ближайших электричек",
+                yandexRaspClient::getNearestThreeTrainsDepartureTime
         );
     }
 
-    public Ability getThreeNearestTrainsArrivalTimeBackWards() {
-        return getArrivalTimeAbility(
+    public Ability getThreeNearestTrainsDepartureTimeBackWards() {
+        return getDepartureTimeAbility(
                 "bwd",
-                "Время прибытия к станции отправления трёх ближайших электричек (обратное направление)",
-                yandexRaspClient::getNearestThreeTrainsArrivalTimeBackward
+                "Время отбытия от станции отправления трёх ближайших электричек (обратное направление)",
+                yandexRaspClient::getNearestThreeTrainsDepartureTimeBackward
         );
     }
 
-    private Ability getArrivalTimeAbility(
+    private Ability getDepartureTimeAbility(
             String commandName,
             String commandDescription,
-            ArrivalTimeProvider resultProvider
+            DepartureTimeProvider resultProvider
     ) {
         return Ability
                 .builder()
@@ -63,7 +63,7 @@ public class SuburbanBot extends AbilityBot {
                             try {
                                 message = String.join(
                                         System.lineSeparator(),
-                                        resultProvider.getArrivalTime(ZonedDateTime.now())
+                                        resultProvider.getDepartureTime(ZonedDateTime.now())
                                 );
                             } catch (JsonProcessingException e) {
                                 e.printStackTrace();

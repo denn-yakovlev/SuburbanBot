@@ -21,8 +21,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.util.List;
 
@@ -78,7 +76,7 @@ class SuburbanBotApplicationTests {
                 .setHeader("Content-Type", "application/json")
         );
         Iterable<String> expected = List.of("06:00");
-        Iterable<String> actual = yandexRaspClient.getNearestThreeTrainsArrivalTime(
+        Iterable<String> actual = yandexRaspClient.getNearestThreeTrainsDepartureTime(
                 ZonedDateTime.parse("2017-03-28T05:00+03:00")
         );
         assertIterableEquals(expected, actual);
@@ -96,7 +94,7 @@ class SuburbanBotApplicationTests {
                 .setHeader("Content-Type", "application/json")
         );
         Iterable<String> expected = List.of("06:00", "06:01", "06:02");
-        Iterable<String> actual = yandexRaspClient.getNearestThreeTrainsArrivalTime(
+        Iterable<String> actual = yandexRaspClient.getNearestThreeTrainsDepartureTime(
                 ZonedDateTime.parse("2017-03-28T05:00+03:00")
         );
         assertIterableEquals(expected, actual);
@@ -114,7 +112,7 @@ class SuburbanBotApplicationTests {
                 .setHeader("Content-Type", "application/json")
         );
         Iterable<String> expected = List.of("06:00", "06:01", "06:02");
-        Iterable<String> actual = yandexRaspClient.getNearestThreeTrainsArrivalTime(
+        Iterable<String> actual = yandexRaspClient.getNearestThreeTrainsDepartureTime(
                 ZonedDateTime.parse("2017-03-28T05:00+03:00")
         );
         assertIterableEquals(expected, actual);
@@ -132,7 +130,7 @@ class SuburbanBotApplicationTests {
                 .setHeader("Content-Type", "application/json")
         );
         Iterable<String> expected = List.of();
-        Iterable<String> actual = yandexRaspClient.getNearestThreeTrainsArrivalTime(
+        Iterable<String> actual = yandexRaspClient.getNearestThreeTrainsDepartureTime(
                 ZonedDateTime.parse("2017-03-28T05:00+03:00")
         );
         assertIterableEquals(expected, actual);
@@ -151,7 +149,7 @@ class SuburbanBotApplicationTests {
         );
         assertThrows(
                 JsonProcessingException.class,
-                () ->yandexRaspClient.getNearestThreeTrainsArrivalTime(
+                () ->yandexRaspClient.getNearestThreeTrainsDepartureTime(
                         ZonedDateTime.parse("2017-03-28T05:00+03:00")
                 )
         );

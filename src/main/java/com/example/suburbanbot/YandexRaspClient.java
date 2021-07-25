@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @lombok.Value
-class SuburbanTrainThread {
+class TrainThread {
     String fromStation;
     String toStation;
 }
@@ -35,12 +35,12 @@ public class YandexRaspClient {
     @Value("${target-TZ}")
     private String userTzCode;
 
-    private SuburbanTrainThread forwardThread() {
-        return new SuburbanTrainThread(firstStationCode, secondStationCode);
+    private TrainThread forwardThread() {
+        return new TrainThread(firstStationCode, secondStationCode);
     }
 
-    private SuburbanTrainThread backwardThread() {
-        return new SuburbanTrainThread(secondStationCode, firstStationCode);
+    private TrainThread backwardThread() {
+        return new TrainThread(secondStationCode, firstStationCode);
     }
 
     private final WebClient webClient;
@@ -49,25 +49,25 @@ public class YandexRaspClient {
         this.webClient = webClient;
     }
 
-    public Iterable<String> getNearestThreeTrainsArrivalTime(ZonedDateTime fromTime)
+    public Iterable<String> getNearestThreeTrainsDepartureTime(ZonedDateTime fromTime)
             throws JsonProcessingException {
-        return getTrainsArrivalTime(fromTime, forwardThread());
+        return getTrainsDepartureTime(fromTime, forwardThread());
     }
 
-    public Iterable<String> getNearestThreeTrainsArrivalTimeBackward(ZonedDateTime fromTime)
+    public Iterable<String> getNearestThreeTrainsDepartureTimeBackward(ZonedDateTime fromTime)
             throws JsonProcessingException{
-        return getTrainsArrivalTime(fromTime, backwardThread());
+        return getTrainsDepartureTime(fromTime, backwardThread());
     }
 
     @NotNull
-    private Iterable<String> getTrainsArrivalTime(ZonedDateTime fromTime, SuburbanTrainThread trainThread)
+    private Iterable<String> getTrainsDepartureTime(ZonedDateTime fromTime, TrainThread trainThread)
             throws JsonProcessingException {
         String jsonString = requestYandexRasp(trainThread);
-        return parseJsonForArrivalTime(fromTime, jsonString);
+        return parseJsonForDepartureTime(fromTime, jsonString);
     }
 
     @Nullable
-    private String requestYandexRasp(SuburbanTrainThread trainThread) {
+    private String requestYandexRasp(TrainThread trainThread) {
         return webClient
                 .get()
                 .uri(uriBuilder -> uriBuilder
@@ -86,7 +86,7 @@ public class YandexRaspClient {
     }
 
     @NotNull
-    private Iterable<String> parseJsonForArrivalTime(ZonedDateTime fromTime, String jsonString)
+    private Iterable<String> parseJsonForDepartureTime(ZonedDateTime fromTime, String jsonString)
             throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode root = mapper.readTree(jsonString);
