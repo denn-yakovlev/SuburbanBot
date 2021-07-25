@@ -11,8 +11,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 @lombok.Value
@@ -49,21 +49,21 @@ public class YandexRaspClient {
         this.webClient = webClient;
     }
 
-    public Iterable<String> getNearestThreeTrainsDepartureTime(ZonedDateTime fromTime)
+    public Stream<DepartureInfo> getNearestThreeTrainsDepartureTime(ZonedDateTime fromTime)
             throws JsonProcessingException {
         return getTrainsDepartureTime(fromTime, forwardThread());
     }
 
-    public Iterable<String> getNearestThreeTrainsDepartureTimeBackward(ZonedDateTime fromTime)
+    public Stream<DepartureInfo> getNearestThreeTrainsDepartureTimeBackward(ZonedDateTime fromTime)
             throws JsonProcessingException{
         return getTrainsDepartureTime(fromTime, backwardThread());
     }
 
     @NotNull
-    private Iterable<String> getTrainsDepartureTime(ZonedDateTime fromTime, TrainThread trainThread)
+    private Stream<DepartureInfo> getTrainsDepartureTime(ZonedDateTime fromTime, TrainThread trainThread)
             throws JsonProcessingException {
         String jsonString = requestYandexRasp(trainThread);
-        return parseJsonForDepartureTime(fromTime, jsonString);
+        return parseJsonForDepartureInfo(fromTime, jsonString);
     }
 
     @Nullable
@@ -86,21 +86,19 @@ public class YandexRaspClient {
     }
 
     @NotNull
-    private Iterable<String> parseJsonForDepartureTime(ZonedDateTime fromTime, String jsonString)
+    private Stream<DepartureInfo> parseJsonForDepartureInfo(ZonedDateTime fromTime, String jsonString)
             throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode root = mapper.readTree(jsonString);
         return StreamSupport
                 .stream(root.get("segments").spliterator(), false)
-                .map(node -> node.get("departure").asText())
-                .map(ZonedDateTime::parse)
-                .dropWhile(zonedDt -> zonedDt.isBefore(fromTime))
-                .limit(3)
-                .map(zonedDt -> zonedDt
-                        .withZoneSameInstant(ZoneId.of(userTzCode))
-                        .toLocalTime()
-                        .format(DateTimeFormatter.ofPattern("HH:mm"))
-                )
-                .collect(Collectors.toList());
+                .map(node -> {
+                    String departureDateTimeAsText = node.get("departure").asText();
+                    ZonedDateTime departureZonedDateTime = ZonedDateTime.parse(departureDateTimeAsText);
+                    boolean notExpress = node.get("thread").get("express_type").isNull();
+                    return new DepartureInfo(departureZonedDateTime, !notExpress);
+                })
+                .dropWhile(depInfo -> depInfo.getDepartureTime().isBefore(fromTime))
+                .limit(3);
     }
 }

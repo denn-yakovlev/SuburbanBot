@@ -7,13 +7,15 @@ import org.telegram.abilitybots.api.bot.AbilityBot;
 import org.telegram.abilitybots.api.objects.Ability;
 
 import java.time.ZonedDateTime;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.telegram.abilitybots.api.objects.Locality.ALL;
 import static org.telegram.abilitybots.api.objects.Privacy.PUBLIC;
 
 @FunctionalInterface
-interface DepartureTimeProvider {
-    Iterable<String> getDepartureTime(ZonedDateTime fromTime) throws JsonProcessingException;
+interface DepartureInfoProvider {
+    Stream<DepartureInfo> getDepartureInfo(ZonedDateTime fromTime) throws JsonProcessingException;
 }
 
 @Component
@@ -49,7 +51,7 @@ public class SuburbanBot extends AbilityBot {
     private Ability getDepartureTimeAbility(
             String commandName,
             String commandDescription,
-            DepartureTimeProvider resultProvider
+            DepartureInfoProvider resultProvider
     ) {
         return Ability
                 .builder()
@@ -61,10 +63,10 @@ public class SuburbanBot extends AbilityBot {
                 .action(ctx -> {
                             String message = "";
                             try {
-                                message = String.join(
-                                        System.lineSeparator(),
-                                        resultProvider.getDepartureTime(ZonedDateTime.now())
-                                );
+                                message = resultProvider
+                                        .getDepartureInfo(ZonedDateTime.now())
+                                        .map(DepartureInfo::toString)
+                                        .collect(Collectors.joining(System.lineSeparator()));
                             } catch (JsonProcessingException e) {
                                 e.printStackTrace();
                                 message = "Ошибка обработки ответа от внешнего API";
